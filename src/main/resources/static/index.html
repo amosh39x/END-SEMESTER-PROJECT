@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>GarageDesk</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--floor:#1c1e21;--panel:#26292d;--line:#3a3e44;--paint:#f5c518;--ink:#eceae4;--dim:#9a9ea5;--ok:#4cd08a;--warn:#ff8a3d;--bad:#ff5d5d;--blue:#5cb8ff}
+*{box-sizing:border-box}
+body{margin:0;background:var(--floor);color:var(--ink);font-family:Barlow,system-ui,sans-serif;
+ background-image:radial-gradient(circle at 20% -10%,#2c3036 0,transparent 55%)}
+h1,h2,h3{font-family:'Barlow Condensed',sans-serif;margin:0;letter-spacing:.02em}
+.stripe{height:14px;background:repeating-linear-gradient(-45deg,var(--paint) 0 16px,#111 16px 32px);background-size:45px 45px;animation:belt 1.4s linear infinite}
+@keyframes belt{to{background-position:45px 0}}
+header{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;padding:22px 5vw}
+header h1{font-size:clamp(34px,5vw,54px);line-height:1;font-weight:700}
+header h1 span{color:var(--paint)}
+header p{margin:4px 0 0;color:var(--dim)}
+.actions{display:flex;flex-wrap:wrap;gap:10px}
+button{font:600 15px Barlow;border:0;border-radius:6px;padding:10px 16px;cursor:pointer;background:var(--line);color:var(--ink);transition:transform .12s,filter .12s}
+button:hover{transform:translateY(-2px);filter:brightness(1.15)}button:active{transform:scale(.96)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--paint);outline-offset:2px}
+.primary{background:var(--paint);color:#111}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:12px;padding:0 5vw}
+.stat{background:var(--panel);border-left:5px solid var(--paint);padding:12px 16px;border-radius:4px}
+.stat b{display:block;font:700 38px 'Barlow Condensed';line-height:1}
+.stat small{color:var(--dim)}
+section{padding:26px 5vw 0}
+section>h2{font-size:28px;margin-bottom:12px;display:flex;align-items:center;gap:12px}
+section>h2 small{font:500 14px Barlow;color:var(--dim)}
+.tracker{display:flex;gap:10px;flex-wrap:wrap}
+.tracker input{flex:1;min-width:200px}
+input,select,textarea{width:100%;background:#15171a;color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:10px 12px;font:500 15px Barlow}
+#trackOut{margin-top:12px}
+.track{background:var(--panel);border-radius:8px;padding:16px;border-left:5px solid var(--blue);animation:pop .3s}
+@keyframes pop{from{transform:scale(.96);opacity:0}}
+/* bays drawn as painted floor lanes */
+.bays{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.bay{position:relative;min-height:170px;padding:14px 16px;border:3px dashed #6b6f76;border-radius:6px;overflow:hidden;transition:border-color .3s,box-shadow .3s;transform-style:preserve-3d}
+.bay.busy{border:3px solid var(--paint);box-shadow:0 0 0 1px #000,0 0 28px #f5c51844;background:#23262a}
+.bay .name{display:flex;justify-content:space-between;align-items:start}
+.bay h3{font-size:26px}.bay .type{color:var(--dim);font-size:13px}
+.bay .free{position:absolute;inset:auto 0 22px 0;text-align:center;color:#6b6f76;font:700 22px 'Barlow Condensed';letter-spacing:.2em}
+.car{font-size:44px;position:absolute;right:14px;bottom:44px;animation:drive .9s cubic-bezier(.2,.9,.3,1)}
+.car.work{animation:drive .9s cubic-bezier(.2,.9,.3,1),shake .25s .9s infinite alternate}
+@keyframes drive{from{transform:translateX(-260px)}}
+@keyframes shake{to{transform:translateY(-2px) rotate(-1.5deg)}}
+.plate{display:inline-block;background:#f4f1e4;color:#111;font:700 15px 'Barlow Condensed';letter-spacing:.08em;padding:1px 8px;border-radius:3px;border:2px solid #111}
+.bar{height:8px;background:#111;border-radius:5px;overflow:hidden;margin-top:8px}
+.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--paint),var(--ok));transition:width .5s}
+.x{background:transparent;color:var(--dim);padding:2px 8px;font-size:18px}.x:hover{color:var(--bad)}
+.mechs{display:flex;flex-wrap:wrap;gap:10px}
+.chip{background:var(--panel);border-radius:30px;padding:6px 6px 6px 14px;display:flex;align-items:center;gap:8px;border:1px solid var(--line)}
+.chip.busy{border-color:var(--paint)}.chip small{color:var(--dim)}
+.board{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px;padding-bottom:60px}
+.col{background:#1f2225;border-radius:8px;padding:12px;min-height:120px}
+.col h3{font-size:22px;margin-bottom:10px;display:flex;justify-content:space-between}
+.col h3 em{font-style:normal;background:var(--line);border-radius:12px;padding:0 10px;font-size:16px}
+.card{background:var(--panel);border-radius:8px;padding:12px;margin-bottom:10px;border-top:4px solid var(--c);transition:transform .15s,box-shadow .15s;animation:pop .3s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 20px #0007}
+.card p{margin:6px 0;font-size:14px;color:var(--dim)}
+.card .row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}.card .row button{padding:6px 10px;font-size:13px}
+.badge{font:700 12px Barlow;padding:2px 8px;border-radius:10px;background:var(--line)}
+.URGENT{background:var(--bad);color:#111}.HIGH{background:var(--warn);color:#111}
+input[type=range]{padding:0;accent-color:var(--paint)}
+.empty{color:#6b6f76;font-style:italic;padding:8px 2px}
+dialog{background:var(--panel);color:var(--ink);border:2px solid var(--paint);border-radius:10px;padding:22px;width:min(440px,92vw);animation:pop .2s}
+dialog::backdrop{background:#000a;backdrop-filter:blur(3px)}
+dialog label{display:block;font-size:13px;color:var(--dim);margin:10px 0 4px}
+dialog .row{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+#toast{position:fixed;right:20px;bottom:20px;display:flex;flex-direction:column;gap:8px;z-index:9}
+.t{background:var(--panel);border-left:5px solid var(--ok);padding:12px 16px;border-radius:6px;box-shadow:0 6px 20px #000a;animation:slide .3s}
+.t.bad{border-color:var(--bad)}
+@keyframes slide{from{transform:translateX(120%)}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="stripe"></div>
+<header>
+  <div><h1>Garage<span>Desk</span></h1><p>Job cards, service bays and live job status in one place</p></div>
+  <div class="actions">
+    <button class="primary" data-a="newJob">New job card</button>
+    <button data-a="newBay">Add bay</button>
+    <button data-a="newMech">Add mechanic</button>
+    <button data-a="run">Assign waiting jobs</button>
+  </div>
+</header>
+<div class="stats" id="stats"></div>
+<section>
+  <h2>Check vehicle status <small>For customers waiting at the garage</small></h2>
+  <div class="tracker"><input id="plate" placeholder="Vehicle number, e.g. TN34AB1234"><button class="primary" data-a="track">Check status</button></div>
+  <div id="trackOut"></div>
+</section>
+<section><h2>Service bays <small id="bayNote"></small></h2><div class="bays" id="bays"></div></section>
+<section><h2>Mechanics</h2><div class="mechs" id="mechs"></div></section>
+<section><h2>Job board</h2><div class="board" id="board"></div></section>
+<dialog id="dlg"><form method="dialog" id="frm"><h2 id="dt"></h2><div id="df"></div>
+  <div class="row"><button type="button" data-a="cancel">Cancel</button><button class="primary" id="ok">Save</button></div></form></dialog>
+<div id="toast"></div>
+<script>
+const $=s=>document.querySelector(s);
+const S={jobs:[],bays:[],mechs:[]};
+const LABEL={WAITING:'Waiting for a bay',SCHEDULED:'Scheduled',IN_PROGRESS:'In progress',COMPLETED:'Completed'};
+const COLOR={WAITING:'#ff8a3d',SCHEDULED:'#5cb8ff',IN_PROGRESS:'#f5c518',COMPLETED:'#4cd08a'};
+const esc=t=>String(t??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+async function api(path,opt={}){
+  const r=await fetch('/api'+path,{headers:{'Content-Type':'application/json'},...opt});
+  if(!r.ok){let m='Request failed';try{m=(await r.json()).message||m}catch{}throw new Error(m)}
+  return r.status===204?null:r.json();
+}
+function toast(msg,bad){const d=document.createElement('div');d.className='t'+(bad?' bad':'');d.textContent=msg;$('#toast').append(d);setTimeout(()=>d.remove(),3500)}
+async function act(fn,ok){try{await fn();if(ok)toast(ok);await load()}catch(e){toast(e.message,true)}}
+
+async function load(){
+  [S.jobs,S.bays,S.mechs]=await Promise.all([api('/jobs'),api('/bays'),api('/mechanics')]);
+  render();
+}
+function count(el,to){const from=+el.textContent||0;const t0=performance.now();
+  (function f(t){const p=Math.min((t-t0)/500,1);el.textContent=Math.round(from+(to-from)*p);if(p<1)requestAnimationFrame(f)})(t0)}
+
+function render(){
+  const by=s=>S.jobs.filter(j=>j.status===s);
+  const active=S.jobs.filter(j=>j.status==='SCHEDULED'||j.status==='IN_PROGRESS');
+  const stats=[['Free bays',S.bays.length-active.length],['Waiting',by('WAITING').length],['In progress',by('IN_PROGRESS').length+by('SCHEDULED').length],['Completed',by('COMPLETED').length]];
+  $('#stats').innerHTML=stats.map(([l])=>`<div class="stat"><b>0</b><small>${l}</small></div>`).join('');
+  document.querySelectorAll('.stat b').forEach((b,i)=>count(b,stats[i][1]));
+  $('#bayNote').textContent=`${active.length} of ${S.bays.length} bays occupied`;
+
+  $('#bays').innerHTML=S.bays.map(b=>{
+    const j=active.find(a=>a.bay&&a.bay.id===b.id);
+    return `<div class="bay ${j?'busy':''}"><div class="name"><div><h3>${esc(b.name)}</h3><span class="type">${esc(b.type)}</span></div>
+      <button class="x" title="Delete bay" data-a="delBay" data-id="${b.id}">&times;</button></div>`+
+      (j?`<p><span class="plate">${esc(j.vehicleNumber)}</span> <small>${esc(j.mechanic?.name)}</small></p>
+          <div class="bar"><i style="width:${j.progress}%"></i></div><small>${j.progress}% done</small>
+          <div class="car ${j.status==='IN_PROGRESS'?'work':''}">${j.status==='IN_PROGRESS'?'🔧':'🚗'}</div>`
+        :`<div class="free">FREE</div>`)+`</div>`}).join('')||'<div class="empty">No bays yet. Add one to start scheduling.</div>';
+  document.querySelectorAll('.bay').forEach(el=>el.addEventListener('mousemove',e=>{const r=el.getBoundingClientRect();
+    el.style.transform=`perspective(700px) rotateX(${((e.clientY-r.top)/r.height-.5)*-6}deg) rotateY(${((e.clientX-r.left)/r.width-.5)*8}deg)`}));
+  document.querySelectorAll('.bay').forEach(el=>el.addEventListener('mouseleave',()=>el.style.transform=''));
+
+  $('#mechs').innerHTML=S.mechs.map(m=>{const busy=active.some(a=>a.mechanic&&a.mechanic.id===m.id);
+    return `<div class="chip ${busy?'busy':''}">${esc(m.name)} <small>${esc(m.specialty)}${busy?' · on a job':''}</small>
+    <button class="x" title="Remove mechanic" data-a="delMech" data-id="${m.id}">&times;</button></div>`}).join('')||'<div class="empty">No mechanics yet.</div>';
+
+  $('#board').innerHTML=Object.keys(LABEL).map(s=>{
+    const list=by(s).sort((a,b)=>a.priority.localeCompare(b.priority)===0?a.id-b.id:['URGENT','HIGH','NORMAL'].indexOf(a.priority)-['URGENT','HIGH','NORMAL'].indexOf(b.priority));
+    return `<div class="col"><h3>${LABEL[s]} <em>${list.length}</em></h3>${list.map(card).join('')||'<div class="empty">Nothing here</div>'}</div>`}).join('');
+}
+function card(j){
+  const live=j.status==='SCHEDULED'||j.status==='IN_PROGRESS';
+  return `<div class="card" style="--c:${COLOR[j.status]}">
+   <div><span class="plate">${esc(j.vehicleNumber)}</span> <span class="badge ${j.priority}">${j.priority}</span></div>
+   <p><b style="color:var(--ink)">${esc(j.vehicleModel)}</b> · ${esc(j.customerName)} ${esc(j.customerPhone)}</p>
+   <p>${esc(j.issue)}</p>
+   ${j.bay?`<p>${esc(j.bay.name)} · ${esc(j.mechanic?.name)}</p>`:''}
+   ${live?`<input type="range" min="0" max="100" step="5" value="${j.progress}" data-id="${j.id}" aria-label="Progress"><small>${j.progress}% complete</small>`:''}
+   <div class="row">
+     ${j.status==='SCHEDULED'?`<button class="primary" data-a="start" data-id="${j.id}">Start work</button>`:''}
+     ${live?`<button data-a="done" data-id="${j.id}">Mark complete</button>`:''}
+     <button data-a="edit" data-id="${j.id}">Edit</button>
+     <button data-a="delJob" data-id="${j.id}">Delete</button>
+   </div></div>`;
+}
+
+/* generic modal form */
+function form(title,fields,submit){
+  $('#dt').textContent=title;
+  $('#df').innerHTML=fields.map(f=>`<label>${f.label}</label>`+(f.opts
+    ?`<select name="${f.k}">${f.opts.map(o=>`<option ${o===f.v?'selected':''}>${o}</option>`).join('')}</select>`
+    :`<input name="${f.k}" value="${esc(f.v||'')}" ${f.req?'required':''}>`)).join('');
+  $('#frm').onsubmit=()=>{const d=Object.fromEntries(new FormData($('#frm')));act(()=>submit(d),'Saved')};
+  $('#dlg').showModal();
+}
+const jobFields=(j={})=>[{k:'vehicleNumber',label:'Vehicle number',v:j.vehicleNumber,req:1},{k:'vehicleModel',label:'Vehicle model',v:j.vehicleModel},
+  {k:'customerName',label:'Customer name',v:j.customerName,req:1},{k:'customerPhone',label:'Customer phone',v:j.customerPhone},
+  {k:'issue',label:'Issue to fix',v:j.issue,req:1},{k:'priority',label:'Priority',opts:['NORMAL','HIGH','URGENT'],v:j.priority}];
+
+document.addEventListener('click',e=>{
+  const b=e.target.closest('[data-a]');if(!b)return;const id=b.dataset.id,a=b.dataset.a;
+  const j=S.jobs.find(x=>x.id==id);
+  if(a==='cancel')$('#dlg').close();
+  else if(a==='newJob')form('New job card',jobFields(),d=>api('/jobs',{method:'POST',body:JSON.stringify(d)}));
+  else if(a==='newBay')form('Add service bay',[{k:'name',label:'Bay name',req:1},{k:'type',label:'Bay type (Lift, Alignment...)'}],d=>api('/bays',{method:'POST',body:JSON.stringify(d)}));
+  else if(a==='newMech')form('Add mechanic',[{k:'name',label:'Name',req:1},{k:'specialty',label:'Specialty'}],d=>api('/mechanics',{method:'POST',body:JSON.stringify(d)}));
+  else if(a==='edit')form('Edit job card '+j.vehicleNumber,jobFields(j).slice(1),d=>api('/jobs/'+id,{method:'PUT',body:JSON.stringify(d)}));
+  else if(a==='run')act(async()=>{const r=await api('/schedule/run',{method:'POST'});toast(r.assigned+' job(s) assigned')});
+  else if(a==='start')act(()=>api(`/jobs/${id}/status?value=IN_PROGRESS`,{method:'PATCH'}),'Work started');
+  else if(a==='done')act(()=>api(`/jobs/${id}/status?value=COMPLETED`,{method:'PATCH'}),'Job completed, bay released');
+  else if(a==='delJob'&&confirm('Delete this job card?'))act(()=>api('/jobs/'+id,{method:'DELETE'}),'Job card deleted');
+  else if(a==='delBay'&&confirm('Delete this bay?'))act(()=>api('/bays/'+id,{method:'DELETE'}),'Bay deleted');
+  else if(a==='delMech'&&confirm('Remove this mechanic?'))act(()=>api('/mechanics/'+id,{method:'DELETE'}),'Mechanic removed');
+  else if(a==='track')track();
+});
+document.addEventListener('change',e=>{if(e.target.type==='range')act(()=>api(`/jobs/${e.target.dataset.id}/progress?value=${e.target.value}`,{method:'PATCH'}))});
+$('#plate').addEventListener('keydown',e=>{if(e.key==='Enter')track()});
+async function track(){
+  const v=$('#plate').value.trim();if(!v)return;
+  try{const r=await api('/track/'+encodeURIComponent(v));const j=r.job;
+    $('#trackOut').innerHTML=`<div class="track"><span class="plate">${esc(j.vehicleNumber)}</span> <b>${LABEL[j.status]}</b>
+     ${r.queuePosition?` · You are number ${r.queuePosition} in the queue`:''}
+     ${j.bay?` · ${esc(j.bay.name)} with ${esc(j.mechanic?.name)}`:''}
+     <div class="bar"><i style="width:${j.progress}%"></i></div><small>${j.progress}% complete</small></div>`;
+  }catch(e){$('#trackOut').innerHTML=`<div class="track" style="border-color:var(--bad)">${esc(e.message)}</div>`}
+}
+load().catch(e=>toast(e.message,true));
+setInterval(()=>{if(!$('#dlg').open&&!document.activeElement.matches('input[type=range]'))load().catch(()=>{})},8000);
+</script>
+</body>
+</html>
